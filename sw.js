@@ -1,10 +1,9 @@
-const CACHE_NAME = 'kas-metro-v2';
+const CACHE_NAME = 'kas-metro-v3';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json'
 ];
-
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
