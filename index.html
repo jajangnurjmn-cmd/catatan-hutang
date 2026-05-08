@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kas Metro</title>
     <link rel="manifest" href="manifest.json">
-    <style>
+<style>
         /* Tipografi & Warna Dasar bergaya Metro */
         :root {
             --bg-color: #000000;
@@ -23,7 +23,7 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            font-size: 16pt; /* Minimal 15pt mengikuti guideline */
+            font-size: 16px; /* Diubah ke px */
         }
 
         /* Pivot Headers */
@@ -37,7 +37,7 @@
         .pivot-header-container::-webkit-scrollbar { display: none; }
 
         .pivot-title {
-            font-size: 42pt;
+            font-size: 42px; /* Diubah ke px, ini ukuran Metro yang pas */
             font-weight: 300;
             margin-right: 30px;
             color: var(--sub-text);
@@ -45,15 +45,16 @@
             cursor: pointer;
             text-transform: lowercase;
             transition: color 0.3s ease;
+            white-space: nowrap; /* Mencegah teks turun ke baris baru */
         }
 
         .pivot-title.active { color: var(--text-color); }
 
         /* The Grid System for List */
         .grid-container {
-            padding: 0 24px 90px; /* Padding bawah agar tidak tertutup App Bar */
+            padding: 0 24px 90px;
             display: none;
-            animation: fadeIn 0.3s ease-out; /* Transisi instan di bawah 500ms */
+            animation: fadeIn 0.3s ease-out;
         }
         .grid-container.active { display: block; }
 
@@ -62,11 +63,12 @@
             grid-template-columns: 1fr auto;
             padding: 15px 0;
             border-bottom: 2px solid #333;
+            cursor: pointer;
         }
 
-        .item-name { font-size: 20pt; font-weight: 400; }
-        .item-date { font-size: 15pt; color: var(--sub-text); margin-top: 5px; }
-        .item-amount { font-size: 24pt; font-weight: 600; text-align: right; }
+        .item-name { font-size: 20px; font-weight: 400; } /* px */
+        .item-date { font-size: 14px; color: var(--sub-text); margin-top: 5px; } /* px */
+        .item-amount { font-size: 22px; font-weight: 600; text-align: right; } /* px */
         
         .piutang-color { color: var(--accent-cyan); }
         .hutang-color { color: var(--accent-red); }
@@ -78,7 +80,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 72px; /* Ketinggian mutlak sesuai guideline */
+            height: 72px;
             background-color: #1f1f1f;
             display: flex;
             justify-content: center;
@@ -93,13 +95,13 @@
             border: 2px solid var(--text-color);
             background: transparent;
             color: var(--text-color);
-            font-size: 24pt;
+            font-size: 32px; /* px */
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             margin: 0 15px;
-            padding-bottom: 5px; /* Visual adjustment */
+            padding-bottom: 4px;
         }
 
         /* Modal Input Baru */
@@ -113,16 +115,16 @@
             box-sizing: border-box;
         }
         .modal.active { display: block; }
-        .modal h2 { font-weight: 300; font-size: 32pt; margin-top: 0; }
+        .modal h2 { font-weight: 300; font-size: 32px; margin-top: 0; } /* px */
         
         input, select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
             background: #222;
             border: 2px solid #444;
             color: white;
-            font-size: 16pt;
+            font-size: 16px; /* px */
             box-sizing: border-box;
         }
         input:focus, select:focus { border-color: var(--accent-cyan); outline: none; }
@@ -132,7 +134,7 @@
             color: white;
             border: none;
             padding: 15px;
-            font-size: 18pt;
+            font-size: 18px; /* px */
             width: 100%;
             cursor: pointer;
         }
