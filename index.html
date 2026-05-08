@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kas Metro</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* Tipografi & Warna Dasar bergaya Metro */
+        :root {
+            --bg-color: #000000;
+            --text-color: #FFFFFF;
+            --accent-cyan: #1BA1E2;
+            --accent-red: #E51400;
+            --accent-green: #60A917;
+            --sub-text: #888888;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-size: 16pt; /* Minimal 15pt mengikuti guideline */
+        }
+
+        /* Pivot Headers */
+        .pivot-header-container {
+            display: flex;
+            padding: 20px 24px 10px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+        .pivot-header-container::-webkit-scrollbar { display: none; }
+
+        .pivot-title {
+            font-size: 42pt;
+            font-weight: 300;
+            margin-right: 30px;
+            color: var(--sub-text);
+            scroll-snap-align: start;
+            cursor: pointer;
+            text-transform: lowercase;
+            transition: color 0.3s ease;
+        }
+
+        .pivot-title.active { color: var(--text-color); }
+
+        /* The Grid System for List */
+        .grid-container {
+            padding: 0 24px 90px; /* Padding bawah agar tidak tertutup App Bar */
+            display: none;
+            animation: fadeIn 0.3s ease-out; /* Transisi instan di bawah 500ms */
+        }
+        .grid-container.active { display: block; }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            padding: 15px 0;
+            border-bottom: 2px solid #333;
+        }
+
+        .item-name { font-size: 20pt; font-weight: 400; }
+        .item-date { font-size: 15pt; color: var(--sub-text); margin-top: 5px; }
+        .item-amount { font-size: 24pt; font-weight: 600; text-align: right; }
+        
+        .piutang-color { color: var(--accent-cyan); }
+        .hutang-color { color: var(--accent-red); }
+        .lunas-color { color: var(--accent-green); }
+
+        /* App Bar 72px Bottom */
+        .app-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 72px; /* Ketinggian mutlak sesuai guideline */
+            background-color: #1f1f1f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .icon-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--text-color);
+            background: transparent;
+            color: var(--text-color);
+            font-size: 24pt;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin: 0 15px;
+            padding-bottom: 5px; /* Visual adjustment */
+        }
+
+        /* Modal Input Baru */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 200;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        .modal.active { display: block; }
+        .modal h2 { font-weight: 300; font-size: 32pt; margin-top: 0; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: #222;
+            border: 2px solid #444;
+            color: white;
+            font-size: 16pt;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus { border-color: var(--accent-cyan); outline: none; }
+        
+        .btn-save {
+            background: var(--accent-cyan);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18pt;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pivot Navigation -->
+    <div class="pivot-header-container">
+        <div class="pivot-title active" onclick="switchPivot('piutang')">piutang</div>
+        <div class="pivot-title" onclick="switchPivot('hutang')">hutang</div>
+        <div class="pivot-title" onclick="switchPivot('lunas')">lunas</div>
+    </div>
+
+    <!-- Data Grids -->
+    <div id="piutang" class="grid-container active"></div>
+    <div id="hutang" class="grid-container"></div>
+    <div id="lunas" class="grid-container"></div>
+
+    <!-- App Bar -->
+    <div class="app-bar">
+        <button class="icon-button" onclick="openModal()">+</button>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="inputModal" class="modal">
+        <h2>transaksi baru</h2>
+        <select id="tipe">
+            <option value="piutang">Orang Lain Hutang (Piutang)</option>
+            <option value="hutang">Saya Hutang (Hutang)</option>
+        </select>
+        <input type="text" id="nama" placeholder="Nama / Kontak" required>
+        <input type="number" id="nominal" placeholder="Nominal (Rp)" required>
+        <input type="date" id="jatuhTempo" required>
+        <button class="btn-save" onclick="saveData()">Simpan</button>
+        <button class="btn-save" style="background: #333; margin-top: 10px;" onclick="closeModal()">Batal</button>
+    </div>
+
+    <script>
+        // UI Logic
+        function switchPivot(targetId) {
+            document.querySelectorAll('.pivot-title').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.grid-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        function openModal() { document.getElementById('inputModal').classList.add('active'); }
+        function closeModal() { document.getElementById('inputModal').classList.remove('active'); }
+
+        // Format Rupiah
+        const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+
+        // Database Logic (IndexedDB)
+        let db;
+        const request = indexedDB.open("KasMetroDB", 1);
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore("transaksi", { keyPath: "id", autoIncrement: true });
+            objectStore.createIndex("tipe", "tipe", { unique: false });
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadData();
+        };
+
+        function saveData() {
+            const tipe = document.getElementById('tipe').value;
+            const nama = document.getElementById('nama').value;
+            const nominal = parseInt(document.getElementById('nominal').value);
+            const jatuhTempo = document.getElementById('jatuhTempo').value;
+
+            if(!nama || !nominal || !jatuhTempo) return alert("Isi semua data!");
+
+            const tx = db.transaction(["transaksi"], "readwrite");
+            const store = tx.objectStore("transaksi");
+            
+            store.add({ tipe, nama, nominal, jatuhTempo, status: 'belum' });
+
+            tx.oncomplete = function() {
+                closeModal();
+                document.getElementById('nama').value = '';
+                document.getElementById('nominal').value = '';
+                loadData();
+            };
+        }
+
+        function loadData() {
+            const tx = db.transaction(["transaksi"], "readonly");
+            const store = tx.objectStore("transaksi");
+            const req = store.getAll();
+
+            req.onsuccess = function() {
+                const data = req.result;
+                document.getElementById('piutang').innerHTML = '';
+                document.getElementById('hutang').innerHTML = '';
+                document.getElementById('lunas').innerHTML = '';
+
+                data.forEach(item => {
+                    let colorClass = item.tipe === 'piutang' ? 'piutang-color' : 'hutang-color';
+                    let targetPivot = item.status === 'lunas' ? 'lunas' : item.tipe;
+                    if(item.status === 'lunas') colorClass = 'lunas-color';
+
+                    const html = `
+                        <div class="list-item" onclick="markLunas(${item.id})">
+                            <div>
+                                <div class="item-name">${item.nama}</div>
+                                <div class="item-date">Tempo: ${item.jatuhTempo}</div>
+                            </div>
+                            <div class="item-amount ${colorClass}">${formatRp(item.nominal)}</div>
+                        </div>
+                    `;
+                    document.getElementById(targetPivot).insertAdjacentHTML('beforeend', html);
+                });
+            };
+        }
+
+        function markLunas(id) {
+            if(!confirm("Tandai transaksi ini lunas?")) return;
+            const tx = db.transaction(["transaksi"], "readwrite");
+            const store = tx.objectStore("transaksi");
+            const req = store.get(id);
+
+            req.onsuccess = function() {
+                const data = req.result;
+                data.status = 'lunas';
+                store.put(data);
+                tx.oncomplete = () => loadData();
+            };
+        }
+
+        // Pendaftaran Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
