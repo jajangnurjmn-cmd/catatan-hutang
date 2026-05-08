@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kas Metro</title>
+    <title>Kas Metro Pro</title>
     <link rel="manifest" href="./manifest.json">
-<style>
-        /* Tipografi & Warna Dasar bergaya Metro */
+    <style>
         :root {
             --bg-color: #000000;
             --text-color: #FFFFFF;
@@ -20,265 +19,293 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            font-size: 16px; /* Diubah ke px */
+            margin: 0; padding: 0; overflow-x: hidden; font-size: 16px;
         }
 
         /* Pivot Headers */
         .pivot-header-container {
-            display: flex;
-            padding: 20px 24px 10px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
+            display: flex; padding: 20px 24px 10px;
+            overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
         }
         .pivot-header-container::-webkit-scrollbar { display: none; }
-
         .pivot-title {
-            font-size: 42px; /* Diubah ke px, ini ukuran Metro yang pas */
-            font-weight: 300;
-            margin-right: 30px;
-            color: var(--sub-text);
-            scroll-snap-align: start;
-            cursor: pointer;
-            text-transform: lowercase;
-            transition: color 0.3s ease;
-            white-space: nowrap; /* Mencegah teks turun ke baris baru */
+            font-size: 42px; font-weight: 300; margin-right: 30px;
+            color: var(--sub-text); scroll-snap-align: start; cursor: pointer;
+            text-transform: lowercase; transition: color 0.3s ease; white-space: nowrap;
         }
-
         .pivot-title.active { color: var(--text-color); }
 
-        /* The Grid System for List */
-        .grid-container {
-            padding: 0 24px 90px;
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
+        /* Grid & List */
+        .grid-container { padding: 0 24px 100px; display: none; animation: fadeIn 0.3s ease-out; }
         .grid-container.active { display: block; }
 
         .list-item {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            padding: 15px 0;
-            border-bottom: 2px solid #333;
-            cursor: pointer;
+            display: grid; grid-template-columns: 1fr auto;
+            padding: 15px 0; border-bottom: 2px solid #222; cursor: pointer;
         }
+        .item-name { font-size: 20px; font-weight: 400; }
+        .item-meta { font-size: 13px; color: var(--sub-text); margin-top: 4px; text-transform: uppercase; }
+        .item-amount { font-size: 22px; font-weight: 600; text-align: right; }
+        .item-status { font-size: 12px; text-align: right; font-weight: bold; }
 
-        .item-name { font-size: 20px; font-weight: 400; } /* px */
-        .item-date { font-size: 14px; color: var(--sub-text); margin-top: 5px; } /* px */
-        .item-amount { font-size: 22px; font-weight: 600; text-align: right; } /* px */
-        
-        .piutang-color { color: var(--accent-cyan); }
-        .hutang-color { color: var(--accent-red); }
-        .lunas-color { color: var(--accent-green); }
+        /* Dashboard/Statistik */
+        .stat-card { background: #111; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
+        .bar-container { height: 10px; background: #333; margin: 10px 0; border-radius: 5px; overflow: hidden; }
+        .bar-fill { height: 100%; transition: width 0.5s ease; }
 
-        /* App Bar 72px Bottom */
+        /* App Bar */
         .app-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 72px;
-            background-color: #1f1f1f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
+            position: fixed; bottom: 0; width: 100%; height: 72px;
+            background-color: #1f1f1f; display: flex; justify-content: center; align-items: center; z-index: 100;
         }
-
         .icon-button {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 2px solid var(--text-color);
-            background: transparent;
-            color: var(--text-color);
-            font-size: 32px; /* px */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            margin: 0 15px;
-            padding-bottom: 4px;
+            width: 48px; height: 48px; border-radius: 50%; border: 2px solid white;
+            background: transparent; color: white; font-size: 28px; cursor: pointer; margin: 0 15px;
         }
 
-        /* Modal Input Baru */
+        /* Modal */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color);
-            z-index: 200;
-            padding: 24px;
-            box-sizing: border-box;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 200; padding: 24px; box-sizing: border-box; overflow-y: auto;
         }
         .modal.active { display: block; }
-        .modal h2 { font-weight: 300; font-size: 32px; margin-top: 0; } /* px */
+        .modal h2 { font-weight: 300; font-size: 32px; margin-top: 0; margin-bottom: 20px; }
         
         input, select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            background: #222;
-            border: 2px solid #444;
-            color: white;
-            font-size: 16px; /* px */
-            box-sizing: border-box;
+            width: 100%; padding: 12px; margin-bottom: 15px; background: #1a1a1a;
+            border: 2px solid #333; color: white; font-size: 16px; box-sizing: border-box;
         }
-        input:focus, select:focus { border-color: var(--accent-cyan); outline: none; }
+        input:focus { border-color: var(--accent-cyan); outline: none; }
         
-        .btn-save {
-            background: var(--accent-cyan);
-            color: white;
-            border: none;
-            padding: 15px;
-            font-size: 18px; /* px */
-            width: 100%;
-            cursor: pointer;
+        .btn {
+            background: var(--accent-cyan); color: white; border: none; padding: 15px;
+            font-size: 18px; width: 100%; cursor: pointer; margin-bottom: 10px; font-weight: bold;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
+        /* Print Media Query */
+        @media print {
+            .app-bar, .pivot-header-container, .icon-button, .btn { display: none !important; }
+            body { background: white; color: black; }
+            .grid-container { display: block !important; padding: 0; }
+            .list-item { border-bottom: 1px solid #ccc; }
+            .item-amount, .item-name { color: black !important; }
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-    <!-- Pivot Navigation -->
     <div class="pivot-header-container">
         <div class="pivot-title active" onclick="switchPivot('piutang')">piutang</div>
         <div class="pivot-title" onclick="switchPivot('hutang')">hutang</div>
-        <div class="pivot-title" onclick="switchPivot('lunas')">lunas</div>
+        <div class="pivot-title" onclick="switchPivot('laporan')">laporan</div>
     </div>
 
-    <!-- Data Grids -->
     <div id="piutang" class="grid-container active"></div>
-    <div id="hutang" class="grid-container"></div>
-    <div id="lunas" class="grid-container"></div>
 
-    <!-- App Bar -->
-    <div class="app-bar">
-        <button class="icon-button" onclick="openModal()">+</button>
+    <div id="hutang" class="grid-container"></div>
+
+    <div id="laporan" class="grid-container">
+        <div class="stat-card">
+            <div style="font-size: 14px; color: var(--sub-text);">Total Piutang (Orang Lain Hutang)</div>
+            <div id="dash-piutang" style="font-size: 28px; color: var(--accent-cyan);">Rp 0</div>
+            <div class="bar-container"><div id="bar-piutang" class="bar-fill" style="background: var(--accent-cyan); width: 0%;"></div></div>
+        </div>
+        <div class="stat-card">
+            <div style="font-size: 14px; color: var(--sub-text);">Total Hutang (Saya Hutang)</div>
+            <div id="dash-hutang" style="font-size: 28px; color: var(--accent-red);">Rp 0</div>
+            <div class="bar-container"><div id="bar-hutang" class="bar-fill" style="background: var(--accent-red); width: 0%;"></div></div>
+        </div>
+        <button class="btn" onclick="window.print()" style="background: #333;">Cetak Laporan (PDF)</button>
     </div>
 
-    <!-- Modal Form -->
-    <div id="inputModal" class="modal">
-        <h2>transaksi baru</h2>
+    <div class="app-bar">
+        <button class="icon-button" onclick="openModal('addModal')">+</button>
+    </div>
+
+    <div id="addModal" class="modal">
+        <h2>tambah data</h2>
         <select id="tipe">
-            <option value="piutang">Orang Lain Hutang (Piutang)</option>
-            <option value="hutang">Saya Hutang (Hutang)</option>
+            <option value="piutang">Piutang (Orang Hutang)</option>
+            <option value="hutang">Hutang (Saya Hutang)</option>
         </select>
-        <input type="text" id="nama" placeholder="Nama / Kontak" required>
-        <input type="number" id="nominal" placeholder="Nominal (Rp)" required>
-        <input type="date" id="jatuhTempo" required>
-        <button class="btn-save" onclick="saveData()">Simpan</button>
-        <button class="btn-save" style="background: #333; margin-top: 10px;" onclick="closeModal()">Batal</button>
+        <input type="text" id="nama" placeholder="Nama / Kontak" list="kontak-list">
+        <datalist id="kontak-list"></datalist> <input type="number" id="nominal" placeholder="Nominal Rp">
+        <select id="kategori">
+            <option value="Pribadi">Pribadi</option>
+            <option value="Usaha">Usaha</option>
+            <option value="Kartu Kredit">Kartu Kredit</option>
+        </select>
+        <input type="date" id="jatuhTempo">
+        <button class="btn" onclick="saveData()">Simpan</button>
+        <button class="btn" style="background: #333;" onclick="closeModal('addModal')">Batal</button>
+    </div>
+
+    <div id="detailModal" class="modal">
+        <h2 id="det-nama">Detail</h2>
+        <div id="det-info" style="margin-bottom: 20px; color: var(--sub-text);"></div>
+        <div style="font-size: 14px;">Sisa Tagihan:</div>
+        <div id="det-sisa" style="font-size: 32px; font-weight: bold; margin-bottom: 30px;"></div>
+        
+        <div id="cicilan-section">
+            <input type="number" id="bayarNominal" placeholder="Jumlah Bayar/Cicilan Rp">
+            <button class="btn" onclick="addPayment()">Bayar Cicilan</button>
+            <button class="btn" style="background: var(--accent-green);" onclick="lunasInstan()">Lunas Sekaligus</button>
+        </div>
+        <button class="btn" style="background: #333; margin-top: 20px;" onclick="closeModal('detailModal')">Kembali</button>
     </div>
 
     <script>
-        // UI Logic
-        function switchPivot(targetId) {
-            document.querySelectorAll('.pivot-title').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
+        let db;
+        let selectedId = null;
+        const formatRp = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+
+        // INIT DB
+        const request = indexedDB.open("KasMetroProDB", 2);
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if(!db.objectStoreNames.contains("transaksi")) {
+                db.createObjectStore("transaksi", { keyPath: "id", autoIncrement: true });
+            }
+        };
+        request.onsuccess = (e) => { db = e.target.result; loadData(); };
+
+        function switchPivot(id) {
+            document.querySelectorAll('.pivot-title').forEach(el => el.classList.toggle('active', el.innerText === id));
             document.querySelectorAll('.grid-container').forEach(el => el.classList.remove('active'));
-            document.getElementById(targetId).classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
-        function openModal() { document.getElementById('inputModal').classList.add('active'); }
-        function closeModal() { document.getElementById('inputModal').classList.remove('active'); }
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // Format Rupiah
-        const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
-
-        // Database Logic (IndexedDB)
-        let db;
-        const request = indexedDB.open("KasMetroDB", 1);
-
-        request.onupgradeneeded = function(event) {
-            db = event.target.result;
-            const objectStore = db.createObjectStore("transaksi", { keyPath: "id", autoIncrement: true });
-            objectStore.createIndex("tipe", "tipe", { unique: false });
-        };
-
-        request.onsuccess = function(event) {
-            db = event.target.result;
-            loadData();
-        };
-
+        // SAVE DATA
         function saveData() {
-            const tipe = document.getElementById('tipe').value;
-            const nama = document.getElementById('nama').value;
-            const nominal = parseInt(document.getElementById('nominal').value);
-            const jatuhTempo = document.getElementById('jatuhTempo').value;
-
-            if(!nama || !nominal || !jatuhTempo) return alert("Isi semua data!");
+            const data = {
+                tipe: document.getElementById('tipe').value,
+                nama: document.getElementById('nama').value,
+                nominal: parseInt(document.getElementById('nominal').value),
+                terbayar: 0,
+                kategori: document.getElementById('kategori').value,
+                jatuhTempo: document.getElementById('jatuhTempo').value,
+                status: 'Belum Lunas',
+                tgl: new Date().toLocaleDateString()
+            };
+            if(!data.nama || !data.nominal) return;
 
             const tx = db.transaction(["transaksi"], "readwrite");
-            const store = tx.objectStore("transaksi");
-            
-            store.add({ tipe, nama, nominal, jatuhTempo, status: 'belum' });
-
-            tx.oncomplete = function() {
-                closeModal();
-                document.getElementById('nama').value = '';
-                document.getElementById('nominal').value = '';
-                loadData();
-            };
+            tx.objectStore("transaksi").add(data);
+            tx.oncomplete = () => { closeModal('addModal'); loadData(); resetForm(); };
         }
 
+        function resetForm() {
+            document.getElementById('nama').value = '';
+            document.getElementById('nominal').value = '';
+        }
+
+        // LOAD & DASHBOARD
         function loadData() {
             const tx = db.transaction(["transaksi"], "readonly");
-            const store = tx.objectStore("transaksi");
-            const req = store.getAll();
-
-            req.onsuccess = function() {
+            const req = tx.objectStore("transaksi").getAll();
+            req.onsuccess = () => {
                 const data = req.result;
-                document.getElementById('piutang').innerHTML = '';
-                document.getElementById('hutang').innerHTML = '';
-                document.getElementById('lunas').innerHTML = '';
-
-                data.forEach(item => {
-                    let colorClass = item.tipe === 'piutang' ? 'piutang-color' : 'hutang-color';
-                    let targetPivot = item.status === 'lunas' ? 'lunas' : item.tipe;
-                    if(item.status === 'lunas') colorClass = 'lunas-color';
-
-                    const html = `
-                        <div class="list-item" onclick="markLunas(${item.id})">
-                            <div>
-                                <div class="item-name">${item.nama}</div>
-                                <div class="item-date">Tempo: ${item.jatuhTempo}</div>
-                            </div>
-                            <div class="item-amount ${colorClass}">${formatRp(item.nominal)}</div>
-                        </div>
-                    `;
-                    document.getElementById(targetPivot).insertAdjacentHTML('beforeend', html);
-                });
+                renderList(data);
+                updateDashboard(data);
+                updateAutocomplete(data);
             };
         }
 
-        function markLunas(id) {
-            if(!confirm("Tandai transaksi ini lunas?")) return;
+        function renderList(data) {
+            const containers = { piutang: '', hutang: '' };
+            data.forEach(item => {
+                if(item.status === 'Lunas') return;
+                const sisa = item.nominal - item.terbayar;
+                const color = item.tipe === 'piutang' ? 'var(--accent-cyan)' : 'var(--accent-red)';
+                const html = `
+                    <div class="list-item" onclick="showDetail(${item.id})">
+                        <div>
+                            <div class="item-name">${item.nama}</div>
+                            <div class="item-meta">${item.kategori} • Tempo: ${item.jatuhTempo}</div>
+                        </div>
+                        <div>
+                            <div class="item-amount" style="color:${color}">${formatRp(sisa)}</div>
+                            <div class="item-status">${item.terbayar > 0 ? 'Mencicil' : 'Baru'}</div>
+                        </div>
+                    </div>
+                `;
+                containers[item.tipe] += html;
+            });
+            document.getElementById('piutang').innerHTML = containers.piutang || '<p style="color:#555">Tidak ada piutang.</p>';
+            document.getElementById('hutang').innerHTML = containers.hutang || '<p style="color:#555">Tidak ada hutang.</p>';
+        }
+
+        function updateDashboard(data) {
+            let totalP = 0, totalH = 0;
+            data.filter(i => i.status !== 'Lunas').forEach(i => {
+                if(i.tipe === 'piutang') totalP += (i.nominal - i.terbayar);
+                else totalH += (i.nominal - i.terbayar);
+            });
+            document.getElementById('dash-piutang').innerText = formatRp(totalP);
+            document.getElementById('dash-hutang').innerText = formatRp(totalH);
+            
+            const max = Math.max(totalP, totalH, 1);
+            document.getElementById('bar-piutang').style.width = (totalP/max*100) + '%';
+            document.getElementById('bar-hutang').style.width = (totalH/max*100) + '%';
+        }
+
+        function updateAutocomplete(data) {
+            const names = [...new Set(data.map(i => i.nama))];
+            document.getElementById('kontak-list').innerHTML = names.map(n => `<option value="${n}">`).join('');
+        }
+
+        // DETAIL & PAYMENTS
+        function showDetail(id) {
+            selectedId = id;
+            const tx = db.transaction(["transaksi"], "readonly");
+            tx.objectStore("transaksi").get(id).onsuccess = (e) => {
+                const item = e.target.result;
+                document.getElementById('det-nama').innerText = item.nama.toLowerCase();
+                document.getElementById('det-info').innerText = `${item.kategori} | Dibuat: ${item.tgl}`;
+                document.getElementById('det-sisa').innerText = formatRp(item.nominal - item.terbayar);
+                openModal('detailModal');
+            };
+        }
+
+        function addPayment() {
+            const bayar = parseInt(document.getElementById('bayarNominal').value);
+            if(!bayar) return;
+            
             const tx = db.transaction(["transaksi"], "readwrite");
             const store = tx.objectStore("transaksi");
-            const req = store.get(id);
-
-            req.onsuccess = function() {
-                const data = req.result;
-                data.status = 'lunas';
-                store.put(data);
-                tx.oncomplete = () => loadData();
+            store.get(selectedId).onsuccess = (e) => {
+                const item = e.target.result;
+                item.terbayar += bayar;
+                if(item.terbayar >= item.nominal) item.status = 'Lunas';
+                store.put(item);
+                tx.oncomplete = () => { 
+                    document.getElementById('bayarNominal').value = '';
+                    closeModal('detailModal'); 
+                    loadData(); 
+                };
             };
         }
 
-        // Pendaftaran Service Worker
-       if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js');
-    });
-}
+        function lunasInstan() {
+            const tx = db.transaction(["transaksi"], "readwrite");
+            const store = tx.objectStore("transaksi");
+            store.get(selectedId).onsuccess = (e) => {
+                const item = e.target.result;
+                item.terbayar = item.nominal;
+                item.status = 'Lunas';
+                store.put(item);
+                tx.oncomplete = () => { closeModal('detailModal'); loadData(); };
+            };
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+        }
     </script>
 </body>
 </html>
